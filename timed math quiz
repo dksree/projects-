@@ -1,0 +1,99 @@
+import random
+import time
+import matplotlib.pyplot as plt
+
+# Function to generate a math question based on the given level
+def generate_question(level):
+    # Define the range for numbers based on the level
+    if level <= 2:
+        num1 = random.randint(1, 10)
+        num2 = random.randint(1, 10)
+    elif level <= 4:
+        num1 = random.randint(10, 50)
+        num2 = random.randint(10, 50)
+    else:
+        num1 = random.randint(50, 100)
+        num2 = random.randint(50, 100)
+
+    # Choose a random operator
+    operator = random.choice(['+', '-', '*', '/'])
+
+    # Ensure that division questions have integer solutions
+    if operator == '/':
+        num1 = num1 * num2  # ensures num1 is divisible by num2
+
+    # Construct the question string
+    question = f"What is {num1} {operator} {num2}?"
+    answer = eval(str(num1) + operator + str(num2))
+    return question, round(answer, 2)  # Round for consistency
+
+# Main function to run the math quiz
+def main():
+    print("Welcome to the Math Quiz!")
+    
+    total_score = 0
+    scores = []  # List to store scores for each level
+
+    # Loop through 5 levels
+    for level in range(1, 6):
+        print(f"\nLevel {level}:")
+        print("Answer the following questions:")
+
+        questions_asked = []
+        level_score = 0
+
+        # Start the time
+        start_time = time.time()
+
+        # Generate 5 unique questions for each level
+        for _ in range(5):
+            question, answer = generate_question(level)
+            while question in questions_asked:
+                question, answer = generate_question(level)
+
+            print(question)
+            user_answer = input("Your answer: ")
+            try:
+                user_answer = float(user_answer)
+                if abs(user_answer - answer) < 0.01:
+                    level_score += 1
+            except ValueError:
+                print("Invalid input! Please enter a number.")
+
+            questions_asked.append(question)
+
+        # End the timer
+        end_time = time.time()
+        level_time = end_time - start_time
+
+        # Display score and time for the level
+        print(f"Score for Level {level}: {level_score}/5")
+        print(f"Time taken for Level {level}: {level_time:.2f} seconds")
+        print(random.choice(["Bravo!!", "Smart!!", "Great!!", "Well done!!", "Fantastic!!"]))
+
+        total_score += level_score
+        scores.append(level_score)
+
+    print("\nCongratulations on completing the game! Well done!")
+
+    # Plotting bar graph
+    plt.figure(figsize=(7, 5))
+    plt.bar(range(1, 6), scores, color='skyblue')
+    plt.title('Scores for Each Level')
+    plt.xlabel('Level')
+    plt.ylabel('Score')
+    plt.xticks(range(1, 6))
+    plt.grid(True)
+    plt.show()
+
+    # Plotting pie chart
+    plt.figure(figsize=(7, 7))
+    plt.pie(scores, labels=[f'Level {i}' for i in range(1, 6)],
+            autopct='%1.1f%%', startangle=140)
+    plt.title('Scores Distribution')
+    plt.axis('equal')
+    plt.show()
+
+# Run the program
+if __name__ == "__main__":
+    main()
