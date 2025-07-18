@@ -1,0 +1,260 @@
+import java.util.*;
+
+// Interface for Maintenance
+interface Maintained {
+    void scheduleMaintenance();
+}
+
+// Base Class: Vehicle
+abstract class Vehicle implements Maintained {
+    String make, model;
+    double rentalRate;
+    boolean isAvailable;
+    int maintenanceDueInDays;
+
+    // Constructor Overloading for Vehicle Initialization
+    Vehicle(String make, String model, double rentalRate, int maintenanceDueInDays) {
+        this.make = make;
+        this.model = model;
+        this.rentalRate = rentalRate;
+        this.isAvailable = true;
+        this.maintenanceDueInDays = maintenanceDueInDays;
+    }
+
+    // Abstract method for rental cost calculation
+    abstract double calculateRentalCost(int days);
+
+    // Schedule Maintenance
+    @Override
+    public void scheduleMaintenance() {
+        System.out.println(make + " " + model + " scheduled for maintenance in " + maintenanceDueInDays + " days.");
+    }
+
+    // Display Vehicle Info
+    void displayInfo() {
+        System.out.println("Make: " + make + ", Model: " + model + ", Rate: $" + rentalRate + " per day");
+        System.out.println("Availability: " + (isAvailable ? "Available" : "Not Available"));
+    }
+}
+
+// Subclass: Car
+class Car extends Vehicle {
+    boolean isLuxury;
+
+    Car(String make, String model, double rentalRate, int maintenanceDueInDays, boolean isLuxury) {
+        super(make, model, rentalRate, maintenanceDueInDays);
+        this.isLuxury = isLuxury;
+    }
+
+    @Override
+    double calculateRentalCost(int days) {
+        double cost = rentalRate * days;
+        if (isLuxury) {
+            cost += 50; // Extra cost for luxury cars
+        }
+        return cost;
+    }
+}
+
+// Subclass: Truck
+class Truck extends Vehicle {
+    int loadCapacity;
+
+    Truck(String make, String model, double rentalRate, int maintenanceDueInDays, int loadCapacity) {
+        super(make, model, rentalRate, maintenanceDueInDays);
+        this.loadCapacity = loadCapacity;
+    }
+
+    @Override
+    double calculateRentalCost(int days) {
+        double cost = rentalRate * days;
+        if (loadCapacity > 1000) {
+            cost += 100; // Extra charge for high-capacity trucks
+        }
+        return cost;
+    }
+}
+
+// Subclass: Motorcycle
+class Motorcycle extends Vehicle {
+    boolean isSportsBike;
+
+    Motorcycle(String make, String model, double rentalRate, int maintenanceDueInDays, boolean isSportsBike) {
+        super(make, model, rentalRate, maintenanceDueInDays);
+        this.isSportsBike = isSportsBike;
+    }
+
+    @Override
+    double calculateRentalCost(int days) {
+        double cost = rentalRate * days;
+        if (isSportsBike) {
+            cost += 20; // Extra for sports bikes
+        }
+        return cost;
+    }
+}
+
+// Class to Manage Rental Service
+public class VehicleManagementSystem {
+    public static void main(String[] args) {
+        List<Vehicle> vehicles = new ArrayList<>();
+        Scanner sc = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("\n1. Add Vehicle");
+            System.out.println("2. Display All Vehicles");
+            System.out.println("3. Rent a Vehicle");
+            System.out.println("4. Schedule Maintenance");
+            System.out.println("5. Show Rental History");
+            System.out.println("6. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    addVehicle(vehicles, sc);
+                    break;
+                case 2:
+                    displayAllVehicles(vehicles);
+                    break;
+                case 3:
+                    rentVehicle(vehicles, sc);
+                    break;
+                case 4:
+                    scheduleMaintenance(vehicles, sc);
+                    break;
+                case 5:
+                    showRentalHistory();
+                    break;
+                case 6:
+                    System.out.println("Exiting...");
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+
+    // Add a vehicle dynamically with user input
+    public static void addVehicle(List<Vehicle> vehicles, Scanner sc) {
+        System.out.println("\nChoose Vehicle Type:");
+        System.out.println("1. Car");
+        System.out.println("2. Truck");
+        System.out.println("3. Motorcycle");
+        System.out.print("Enter your choice: ");
+        int type = sc.nextInt();
+
+        System.out.print("Enter Make: ");
+        String make = sc.next();
+
+        System.out.print("Enter Model: ");
+        String model = sc.next();
+
+        System.out.print("Enter Rental Rate per day: ");
+        double rate = sc.nextDouble();
+
+        System.out.print("Enter Maintenance Due in Days: ");
+        int maintenanceDue = sc.nextInt();
+
+        switch (type) {
+            case 1:
+                System.out.print("Is it a luxury car? (true/false): ");
+                boolean isLuxury = sc.nextBoolean();
+                vehicles.add(new Car(make, model, rate, maintenanceDue, isLuxury));
+                break;
+            case 2:
+                System.out.print("Enter Load Capacity in kg: ");
+                int loadCapacity = sc.nextInt();
+                vehicles.add(new Truck(make, model, rate, maintenanceDue, loadCapacity));
+                break;
+            case 3:
+                System.out.print("Is it a sports bike? (true/false): ");
+                boolean isSportsBike = sc.nextBoolean();
+                vehicles.add(new Motorcycle(make, model, rate, maintenanceDue, isSportsBike));
+                break;
+            default:
+                System.out.println("Invalid vehicle type. Try again.");
+        }
+        System.out.println("Vehicle added successfully!");
+    }
+
+    // Display all vehicles
+    public static void displayAllVehicles(List<Vehicle> vehicles) {
+        if (vehicles.isEmpty()) {
+            System.out.println("No vehicles available.");
+            return;
+        }
+        for (int i = 0; i < vehicles.size(); i++) {
+            System.out.println("\nVehicle ID: " + i);
+            vehicles.get(i).displayInfo();
+        }
+    }
+
+    // Rent a vehicle
+    public static void rentVehicle(List<Vehicle> vehicles, Scanner sc) {
+        try {
+            System.out.print("Enter Vehicle ID to rent: ");
+            int vehicleID = sc.nextInt();
+
+            if (vehicleID < 0 || vehicleID >= vehicles.size()) {
+                throw new Exception("Invalid Vehicle ID!");
+            }
+
+            Vehicle vehicle = vehicles.get(vehicleID);
+
+            if (!vehicle.isAvailable) {
+                throw new Exception("Vehicle is not available for rent!");
+            }
+
+            System.out.print("Enter number of days to rent: ");
+            int days = sc.nextInt();
+
+            if (days <= 0) {
+                throw new Exception("Invalid rental period!");
+            }
+
+            double cost = vehicle.calculateRentalCost(days);
+            System.out.printf("Total Rental Cost: $%.2f%n", cost);
+            vehicle.isAvailable = false;
+
+            // Add rental history
+            rentalHistory.add(vehicle.make + " " + vehicle.model + " rented for " + days + " days. Cost: $" + cost);
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // Schedule maintenance for a vehicle
+    public static void scheduleMaintenance(List<Vehicle> vehicles, Scanner sc) {
+        try {
+            System.out.print("Enter Vehicle ID to schedule maintenance: ");
+            int vehicleID = sc.nextInt();
+
+            if (vehicleID < 0 || vehicleID >= vehicles.size()) {
+                throw new Exception("Invalid Vehicle ID!");
+            }
+
+            Vehicle vehicle = vehicles.get(vehicleID);
+            vehicle.scheduleMaintenance();
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // Rental History Management
+    static List<String> rentalHistory = new ArrayList<>();
+
+    public static void showRentalHistory() {
+        if (rentalHistory.isEmpty()) {
+            System.out.println("No rental history available.");
+        } else {
+            System.out.println("Rental History:");
+            for (String history : rentalHistory) {
+                System.out.println(history);
+            }
+        }
+    }
+}
