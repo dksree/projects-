@@ -1,0 +1,66 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_BOOKS 100
+
+struct Book {
+    char title[100];
+    char author[100];
+    int year;
+};
+
+struct Library {
+    struct Book books[MAX_BOOKS];
+    int count;
+};
+
+void addBook(struct Library *library, const char *title, const char *author, int year) {
+    if (library->count < MAX_BOOKS) {
+        struct Book newBook;
+        strncpy(newBook.title, title, sizeof(newBook.title));
+        strncpy(newBook.author, author, sizeof(newBook.author));
+        newBook.year = year;
+
+        library->books[library->count++] = newBook;
+        printf("Book added successfully.\n");
+    } else {
+        printf("Library is full. Cannot add more books.\n");
+    }
+}
+
+void displayBooks(const struct Library *library) {
+    printf("Book List:\n");
+    for (int i = 0; i < library->count; ++i) {
+        printf("Title: %s\n", library->books[i].title);
+        printf("Author: %s\n", library->books[i].author);
+        printf("Year: %d\n", library->books[i].year);
+        printf("------------\n");
+    }
+}
+
+void searchBook(const struct Library *library, const char *searchTitle) {
+    printf("Search Results:\n");
+    for (int i = 0; i < library->count; ++i) {
+        if (strstr(library->books[i].title, searchTitle) != NULL) {
+            printf("Title: %s\n", library->books[i].title);
+            printf("Author: %s\n", library->books[i].author);
+            printf("Year: %d\n", library->books[i].year);
+            printf("------------\n");
+        }
+    }
+}
+
+int main() {
+    struct Library library;
+    library.count = 0;
+
+    addBook(&library, "The Great Gatsby", "F. Scott Fitzgerald", 1925);
+    addBook(&library, "To Kill a Mockingbird", "Harper Lee", 1960);
+    addBook(&library, "1984", "George Orwell", 1949);
+
+    displayBooks(&library);
+
+    searchBook(&library, "Mockingbird");
+
+    return 0;
+}
